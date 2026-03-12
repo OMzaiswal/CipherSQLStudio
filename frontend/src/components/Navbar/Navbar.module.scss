@@ -1,0 +1,31 @@
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    // border: 1px solid rgb(211, 207, 207);
+    border-radius: 10px;
+    padding: 20px 40px;
+    background-color: rgb(21, 20, 20);
+    font-size: 20px;
+}
+
+.navbar {
+    a {
+        padding: 5px 10px;
+        border-radius: 20px;
+        color: white;
+        text-decoration: none;
+    }
+}
+
+.navbar {
+    div {
+        display: flex;
+        gap: 20px;
+
+        a:hover {
+            background-color: gray;
+            scale: 110%;
+        }
+    }
+}
