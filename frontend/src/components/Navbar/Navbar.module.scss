@@ -2,30 +2,84 @@
 .navbar {
     display: flex;
     justify-content: space-between;
-    // border: 1px solid rgb(211, 207, 207);
-    border-radius: 10px;
-    padding: 20px 40px;
-    background-color: rgb(21, 20, 20);
+    align-items: center;
+    border: 0.75px solid rgba(140, 140, 140, 0.2);
+    height: 67.5px;
+    background-color: #FFFFFF;
     font-size: 20px;
-}
+    padding: 0 23px 0 23px;
+    position: relative;
 
-.navbar {
     a {
         padding: 5px 10px;
         border-radius: 20px;
-        color: white;
+        color: #6A6A6A;
         text-decoration: none;
     }
 }
 
-.navbar {
-    div {
-        display: flex;
-        gap: 20px;
+.logo {
+    font-size: 21px;
+    font-weight: 500;
+}
 
-        a:hover {
-            background-color: gray;
-            scale: 110%;
-        }
+.desktopAuth {
+    display: flex;
+    gap: 20px;
+
+    a:hover {
+        color: #343333;
     }
 }
+
+.toggleBtn {
+    display: none;
+    border: none;
+    background-color: #FFFFFF;
+}
+
+.mobileMenu {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        height: 67px;
+        border: 1px solid rgba(0,0,0, 0.2);
+    }
+
+    .logo {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .desktopAuth {
+        display: none;
+    }
+
+    .toggleBtn {
+        display: block;
+    }
+}
+
+@media (min-width: 1600px) {
+    .navbar {
+        height: 90px;
+        border: 1px solid rgba(140, 140, 140, 0.2);
+    }
+
+    .logo {
+        font-size: 28px;
+        font-weight: 500;
+    }
+}
+

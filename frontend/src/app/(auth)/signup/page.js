@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import styles from './signup.module.scss';
+import Link from "next/link";
 
 const Signup = () => {
 
@@ -10,35 +11,62 @@ const Signup = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [cPassword, setCpassword] = useState('');
+    const [error, setError] = useState('');
 
     return (
         <div className={styles.container}>
             <div className={styles.left}>
-                <img src="/coder-img.png" />
+                <p className={styles.lapHeading}>Register to CipherSchools</p>
+                
+                <div className={`${styles.mobScreen} ${styles.mobHeading}`}>
+                    <p className={styles.welcome}>Welcome user!👋🏻 </p>
+                    <p>Sign-Up and begin with your coding!</p>
+                </div>
+
+                <form className={styles.signup}>
+                    <input 
+                        type="text"
+                        placeholder="First Name:"
+                        onChange={e => setFirstName(e.target.value)}
+                    />
+                    <input 
+                        type="text"
+                        placeholder="Last Name:"
+                        onChange={e => setLastName(e.target.value)}
+                    />
+                    <input 
+                        type="email"
+                        placeholder="Email ID:"
+                        className={styles.full}
+                        onChange={e => setEmail(e.target.value)}
+                    />
+                    <input 
+                        type="number"
+                        placeholder="Mobile No:"
+                        onChange={e => setMobileNo(e.target.value)}
+                    />
+                    <input 
+                        type="password"
+                        placeholder="Password:"
+
+                        onChange={e => setPassword(e.target.value)}
+                    />
+                    <div className={` ${styles.mobScreen} ${styles.full} ${styles.check}`}>
+                        <input type="checkbox"></input>
+                        <p>Receive our latest blogs full tips and insights.</p>
+                    </div>
+                    <div className={` ${styles.mobScreen} ${styles.full} ${styles.check}`}>
+                        <input type="checkbox"></input>
+                        <p>Get our exclusive newsletters for updates and offers.</p>
+                    </div>
+                    <button className={styles.full}>Sign-Up</button>
+                </form>
+                <p>Already have an account? <Link href='/login'>Sign-in Now!</Link></p>
+                {error && <p className={styles.error}>{error}</p>}
             </div>
-            <form className={styles.signup}>
-                <input 
-                    type="text"
-                    placeholder="First Name"
-                />
-                <input 
-                    type="text"
-                    placeholder="Last Name"
-                />
-                <input 
-                    type="email"
-                    placeholder="Email"
-                />
-                <input 
-                    type="password"
-                    placeholder="Password"
-                />
-                <input 
-                    type="password"
-                    placeholder="Confirm Password"
-                />
-                <button>Signup</button>
-            </form>
+            <div className={styles.right}>
+                <img src="/laptop.png" />
+            </div>
         </div>
 
     )
