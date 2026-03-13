@@ -4,6 +4,7 @@ import { useState } from "react"
 import styles from './SqlEditor.module.scss';
 import { Editor } from "@monaco-editor/react";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 // const { Editor } = require("@monaco-editor/react")
 
@@ -14,12 +15,19 @@ const SqlEditor = ({ id }) => {
     const [error, setError] = useState('');
     const [verdict, setVerdict] = useState(false);
 
+
     const user = useSelector((state) => state.auth.user);
+    const router = useRouter();
 
     const runQuery = async () => {
         // console.log(query, 'id: ', id);
         // setResult('Something')
-        console.log('This is id: ', id)
+        // console.log('This is id: ', id)
+        if(!user || !user.id) {
+            alert('You must login before running query!')
+            router.push('/login');
+            return;
+        }
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/query/run`, 
             {
                 method: 'POST',
@@ -36,7 +44,11 @@ const SqlEditor = ({ id }) => {
         );
         const response = await res.json();
         if (response.success) {
-            setVerdict(response.verdict.correct);
+            if(response.verdict.correct) {
+                setVerdict('passed')
+            } else {
+                setVerdict('failed')
+            }
             setQueryOutput(response.verdict.queryOutput);
         } else {
             setError(response.message);
@@ -76,11 +88,13 @@ const SqlEditor = ({ id }) => {
                         <p className={styles.error}>{error}</p>
                     ) : (
                         <div>
-                            {verdict ? (
+                            {verdict === 'passed' && <p className={styles.success}>Success</p>}
+                            {verdict === 'failed' && <p className={styles.success}>Success</p>}
+                            {/* {verdict ? (
                                 <p className={styles.success}>Success</p>
                             ) : (
                                 <p className={styles.failure}>Failed</p>
-                            )}
+                            )} */}
                         </div>
                     )}
                     </>
