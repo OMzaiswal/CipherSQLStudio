@@ -77,6 +77,23 @@ async function logout(req, res) {
   res.json({ success: true, message: "Logged out successfully." });
 }
 
+async function getMe (req, res, next) {
+  try{
+    res.json({
+      success: true,
+      user: {
+        id: req.user._id,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        email: req.user.email,
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+
 // GET /api/auth/profile  (protected)
 async function getProfile(req, res, next) {
   try {
@@ -110,4 +127,4 @@ async function getProfile(req, res, next) {
   }
 }
 
-module.exports = { signup, login, logout, getProfile };
+module.exports = { signup, login, logout, getMe, getProfile };
