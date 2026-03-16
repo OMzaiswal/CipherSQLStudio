@@ -305,8 +305,8 @@ Runs on `http://localhost:5000`
 
 ### Databases
 
-- **MongoDB** — [MongoDB Atlas](https://atlas.mongodb.com) free tier
-- **PostgreSQL** — [Supabase](https://supabase.com) free tier
+- **MongoDB** - [MongoDB Atlas](https://atlas.mongodb.com) free tier
+- **PostgreSQL** - [Supabase](https://supabase.com) free tier
 
 ---
 
