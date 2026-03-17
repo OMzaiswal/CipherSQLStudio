@@ -25,25 +25,20 @@ async function getAssignment(req, res, next) {
     }
 
     // Build the sandbox
-    const sandboxInfo = await buildSandbox(assignment);
+    const sandboxInfo = await buildSandbox(assignment, req.user._id.toString());
 
-    // send reponse without sending full expectedOutput, send expectedOut's type only
     const responseData = {
       _id: assignment._id,
       title: assignment.title,
       description: assignment.description,
+      difficulty: assignment.difficulty,
       question: assignment.question,
       sampleTables: assignment.sampleTables,
       createdAt: assignment.createdAt,
-      // Expose expected output type for frontEnd
       expectedOutputType: assignment.expectedOutput.type,
     };
 
-    res.json({
-      success: true,
-      data: responseData,
-      sandbox: sandboxInfo,
-    });
+    res.json({ success: true, data: responseData, sandbox: sandboxInfo });
   } catch (err) {
     next(err);
   }

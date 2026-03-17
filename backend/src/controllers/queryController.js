@@ -22,7 +22,7 @@ async function runQuery(req, res, next) {
     let queryResult;
     try {
       const cleanSql = sql.trim().replace(/;+$/, ""); // remove trailing semicolons
-      queryResult = await executeQuery(assignmentId, cleanSql);
+      queryResult = await executeQuery(assignmentId, userId, cleanSql);
     } catch (queryErr) {
       const errorType = queryErr.type || "SQL_ERROR";
       return res.status(200).json({
@@ -46,7 +46,7 @@ async function runQuery(req, res, next) {
     if (userId) {
       await UserProgress.findOneAndUpdate(
         { userId, assignmentId },
-        {
+        { 
           $set: {
             sqlQuery: sql,
             lastAttempt: new Date(),

@@ -12,6 +12,8 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./config/mongo");
 const { pgPool } = require("./config/postgres");
 
+const { startCleanupJob } = require("./services/cleanupService");
+
 const authRoutes = require("./routes/auth");
 const assignmentRoutes = require("./routes/assignments");
 const queryRoutes = require("./routes/query");
@@ -72,6 +74,7 @@ const PORT = process.env.PORT || 3000;
 
   app.listen(PORT, () => {
     console.log(`CipherSQL Studio backend running on port ${PORT}`);
+    startCleanupJob();
   });
 })();
 

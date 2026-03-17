@@ -1,4 +1,5 @@
 const { pgPool } = require("../config/postgres");
+const SandboxSession = require("../models/SandboxSession");
 
 const SCHEMA_PREFIX = "ws_";
 const MAX_ROWS = 500;
@@ -14,7 +15,11 @@ const DATA_TYPE_MAP = {
   VARCHAR: "VARCHAR(255)",
 };
 
-// Only SELECT and WITH (CTEs) are allowed
+// Schema is per-user per-assignment — no two users share a schema
+function getSchemaName(assignmentId, userId) {
+  return `${SCHEMA_PREFIX}${assignmentId}_${userId}`;
+}
+
 function validateQuery(sql) {
   if (!sql || typeof sql !== "string" || sql.trim().length === 0) {
     return { valid: false, reason: "Query cannot be empty." };
@@ -27,14 +32,9 @@ function validateQuery(sql) {
   return { valid: true, reason: null };
 }
 
-// Each assignment gets its own schema: ws_<assignmentId>
-function getSchemaName(assignmentId) {
-  return `${SCHEMA_PREFIX}${assignmentId}`;
-}
-
-// Build (or rebuild) the sandbox tables from assignment data
-async function buildSandbox(assignment) {
-  const schema = getSchemaName(assignment._id);
+// Build sandbox for a specific user + assignment
+async function buildSandbox(assignment, userId) {
+  const schema = getSchemaName(assignment._id, userId);
   const client = await pgPool.connect();
 
   try {
@@ -46,6 +46,7 @@ async function buildSandbox(assignment) {
         .map((col) => `"${col.columnName}" ${DATA_TYPE_MAP[col.dataType] || "TEXT"}`)
         .join(", ");
 
+      // Drop & recreate so user always gets fresh data when reopening a problem
       await client.query(`DROP TABLE IF EXISTS "${schema}"."${table.tableName}"`);
       await client.query(`CREATE TABLE "${schema}"."${table.tableName}" (${columnDefs})`);
 
@@ -53,15 +54,25 @@ async function buildSandbox(assignment) {
         const colNames = table.columns.map((c) => c.columnName);
         const values = colNames.map((col) => row[col] ?? null);
         const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");
+        const colIdents = colNames.map((c) => `"${c}"`).join(", ");
 
         await client.query(
-          `INSERT INTO "${schema}"."${table.tableName}" (${colNames.map((c) => `"${c}"`).join(", ")}) VALUES (${placeholders})`,
+          `INSERT INTO "${schema}"."${table.tableName}" (${colIdents}) VALUES (${placeholders})`,
           values
         );
       }
     }
 
     await client.query("COMMIT");
+
+    // Track this sandbox session in MongoDB
+    await SandboxSession.findOneAndUpdate(
+      { schema },
+      { schema, assignmentId: assignment._id, userId, lastUsedAt: new Date() },
+      { upsert: true, new: true }
+    );
+
+    return { schema, tablesCreated: assignment.sampleTables.map((t) => t.tableName) };
   } catch (err) {
     await client.query("ROLLBACK");
     throw new Error(`Sandbox build failed: ${err.message}`);
@@ -70,16 +81,18 @@ async function buildSandbox(assignment) {
   }
 }
 
-// Run user's query inside the assignment's sandbox schema
-async function executeQuery(assignmentId, sql) {
-  const { valid, reason } = validateQuery(sql);
+// Run user query inside their personal sandbox schema
+async function executeQuery(assignmentId, userId, sql) {
+  const cleanSql = sql.trim().replace(/;+$/, ""); // strip trailing semicolons
+
+  const { valid, reason } = validateQuery(cleanSql);
   if (!valid) {
     const err = new Error(reason);
     err.type = "SQL_VALIDATION_ERROR";
     throw err;
   }
 
-  const schema = getSchemaName(assignmentId);
+  const schema = getSchemaName(assignmentId, userId);
   const client = await pgPool.connect();
 
   try {
@@ -87,10 +100,16 @@ async function executeQuery(assignmentId, sql) {
     await client.query("BEGIN READ ONLY");
 
     const result = await client.query(
-      `SELECT * FROM (${sql}) AS user_query LIMIT ${MAX_ROWS}`
+      `SELECT * FROM (${cleanSql}) AS user_query LIMIT ${MAX_ROWS}`
     );
 
     await client.query("COMMIT");
+
+    // Update lastUsedAt so cleanup job knows this schema is still active
+    await SandboxSession.findOneAndUpdate(
+      { schema },
+      { lastUsedAt: new Date() }
+    );
 
     return {
       rows: result.rows,
