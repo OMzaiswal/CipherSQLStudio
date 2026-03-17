@@ -20,6 +20,8 @@ const SqlEditor = ({ id }) => {
     const router = useRouter();
 
     const runQuery = async () => {
+        setError('');
+        
         // console.log(query, 'id: ', id);
         // setResult('Something')
         // console.log('This is id: ', id)
