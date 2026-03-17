@@ -77,7 +77,3 @@ const PORT = process.env.PORT || 3000;
     startCleanupJob();
   });
 })();
-
-
-// TODO
-// clear sandbox table before as soon as request from client
