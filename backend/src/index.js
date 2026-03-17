@@ -46,6 +46,9 @@ app.use(
   })
 );
 
+
+console.log('this is the env', proces.env.NODE_ENV);
+
 app.use(express.json({ limit: "50kb" }));
 
 app.use("/api/auth", authRoutes);
