@@ -20,7 +20,7 @@ const AssignmentPage = ({ params }) => {
             const { id } = await params;
 
             if(!user || !user.userId) {
-                alert('You must login before opening an assignment!')
+                // alert('You must login before opening an assignment!')
                 router.push('/login');
                 return;
             } 
