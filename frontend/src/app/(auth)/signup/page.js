@@ -4,6 +4,7 @@ import { useState } from "react";
 import styles from './signup.module.scss';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 const Signup = () => {
 
@@ -15,6 +16,13 @@ const Signup = () => {
     const [error, setError] = useState('');
 
     const router = useRouter();
+
+    const user = useSelector((state) => state.auth.user);
+
+    if (user && user.userId) {
+        router.push('/assignments');
+        return;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();

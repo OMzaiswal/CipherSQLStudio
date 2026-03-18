@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { login } from "@/store/authSlice";
+import { useSelector } from "react-redux";
 
 const Login = () => {
 
@@ -15,6 +16,13 @@ const Login = () => {
 
     const router = useRouter();
     const dispatch = useDispatch();
+
+    const user = useSelector((state) => state.auth.user);
+
+    if (user && user.userId) {
+        router.push('/assignments');
+        return;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();

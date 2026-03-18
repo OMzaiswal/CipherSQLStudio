@@ -1,22 +1,55 @@
+'use client'
+
 import SqlEditor from "@/components/SqlEditor/SqlEditor";
 import styles from './assignment.module.scss';
 import AiHint from "@/components/AiHint/AiHint";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+// import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 
-const AssignmentPage = async ({ params }) => {
+const AssignmentPage = ({ params }) => {
 
-    const { id } = await params;
+    const [assignment, setAssignment] = useState();
+    const user = useSelector((state) => state.auth.user);
+    const router = useRouter();
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/assignments/${id}`,
-        {
-            method: 'GET',
-            credentials: 'include'
+    useEffect(() => {
+        const fetchAssDetaila = async () => {
+
+            const { id } = await params;
+
+            if(!user || !user.userId) {
+                alert('You must login before opening an assignment!')
+                router.push('/login');
+                return;
+            } 
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/assignments/${id}`,
+                {
+                    method: 'GET',
+                    credentials: 'include'
+                }
+            );
+            const response = await res.json();
+            setAssignment(response.data);
+            console.log('Hello');
+            console.log(response)
         }
-    );
-    const response = await res.json();
-    const assignment = response.data;
+        fetchAssDetaila();
+    }, [])
+
+    if (!assignment) {
+        return (
+            <p>Loading...</p>
+        )
+    }
+
 
     return (
+        // <PanelGroup direction='horizontal' >
         <div className={styles.assignment}>
+            {/* <Panel defaultSize={40}> */}
             <section className={styles.assignment_left}>
                 {/* question section - left side */}
                 <h3>{assignment.title}</h3>
@@ -43,15 +76,20 @@ const AssignmentPage = async ({ params }) => {
                                 ))}
                             </tbody>
                         </table>
-                        <AiHint id={ id } />
+                        <AiHint id={ assignment._id } />
                     </div>
                 ))}
             </section>
+            {/* </Panel> */}
+            {/* <PanelResizeHandle className={styles.resizeHandle} />
+            <Panel defaultSize={60}> */}
             <section className={styles.assignment_right}>
                 {/* right part */}
-                <SqlEditor id={ id }/>
+                <SqlEditor id={ assignment._id }/>
             </section>
+            {/* </Panel> */}
         </div>
+        // </PanelGroup>
     )
 }
 
