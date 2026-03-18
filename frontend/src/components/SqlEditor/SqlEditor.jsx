@@ -55,7 +55,12 @@ const SqlEditor = ({ id }) => {
             }
             setQueryOutput(response.verdict.queryOutput);
         } else {
-            setError(response.message);
+            if(response.message === 'assignmentId and sql are required.') {
+                setError('You must write SQL query before running it.')
+            }
+            if (response.error && response.error.message) {
+                setError(response.error.message);
+            }
         }
     }
 

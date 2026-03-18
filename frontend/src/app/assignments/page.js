@@ -11,49 +11,6 @@ const Assignments = async () => {
     const response = await res.json();
     const assignments = response.data;
 
-    // const assignments = [
-    //     {
-    //       "id": 1,
-    //       "title": "Find All Users",
-    //       "difficulty": "Easy"
-    //     },
-    //     {
-    //       "id": 2,
-        //   "title": "Orders Above 100",
-        //   "difficulty": "Medium"
-        // },
-        // {
-        //   "id": 3,
-        //   "title": "Find All Users",
-        //   "difficulty": "Easy"
-        // },
-        // {
-        //   "id": 4,
-        //   "title": "Orders Above 100",
-        //   "difficulty": "Medium"
-        // },
-        // {
-      //     "id": 5,
-      //     "title": "Find All Users",
-      //     "difficulty": "Easy"
-      //   },
-      //   {
-      //     "id": 6,
-      //     "title": "Orders Above 100",
-      //     "difficulty": "Medium"
-      //   },
-      //   {
-      //     "id": 7,
-      //     "title": "Find All Users",
-      //     "difficulty": "Easy"
-      //   },
-      //   {
-      //     "id": 8,
-      //     "title": "Orders Above 100",
-      //     "difficulty": "Medium"
-      //   }
-      // ]
-
     return (
         <div className={styles.container}>
           <div className={styles.assignments}>
