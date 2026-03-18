@@ -22,7 +22,7 @@ async function runQuery(req, res, next) {
     let queryResult;
     try {
       const cleanSql = sql.trim().replace(/;+$/, ""); // remove trailing semicolons
-      queryResult = await executeQuery(assignmentId, userId, cleanSql);
+      queryResult = await executeQuery(assignmentId, req.user._id.toString(), cleanSql);
     } catch (queryErr) {
       const errorType = queryErr.type || "SQL_ERROR";
       return res.status(200).json({
