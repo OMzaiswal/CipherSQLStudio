@@ -23,16 +23,20 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
+app.set("trust proxy", 1);
+app.use(helmet());
+
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 5 * 1000, // 1 hour
   message: "Too many requests from this IP, please try again in some time!",
 });
 
+
+
 app.use("/api", limiter);
 
 
-app.use(helmet());
 app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
