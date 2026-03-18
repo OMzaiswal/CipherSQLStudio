@@ -1,5 +1,6 @@
 const express = require("express");
 const { listAssignments, getAssignment } = require("../controllers/assignmentController");
+const protect = require("../middleware/protect");
 
 const router = express.Router();
 
@@ -7,6 +8,6 @@ const router = express.Router();
 router.get("/", listAssignments);
 
 // GET /api/assignments/:id  -  Load particular assignment + build sandbox
-router.get("/:id", getAssignment);
+router.get("/:id", protect, getAssignment);
 
 module.exports = router;
