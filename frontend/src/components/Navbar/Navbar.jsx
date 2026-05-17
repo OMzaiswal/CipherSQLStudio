@@ -60,7 +60,7 @@ const Navbar = () => {
 
     return (
         <nav className={styles.navbar}>
-            <Link href='/assignments' className={styles.logo}>CipherSchools</Link>
+            <Link href='/assignments' className={styles.logo}>Query<span>Studio</span></Link>
             <div>
                 <div className={styles.desktopAuth}>
                     {user ? (
