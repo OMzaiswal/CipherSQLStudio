@@ -8,6 +8,6 @@ const router = express.Router();
 router.get("/", listAssignments);
 
 // GET /api/assignments/:id  -  Load particular assignment + build sandbox
-router.get("/:id", protect, getAssignment);
+router.get("/:id",  getAssignment);
 
 module.exports = router;
