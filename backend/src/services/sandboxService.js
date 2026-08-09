@@ -17,20 +17,79 @@ const DATA_TYPE_MAP = {
 
 // Schema is per-user per-assignment — no two users share a schema
 function getSchemaName(assignmentId, userId) {
-  return `${SCHEMA_PREFIX}${assignmentId}_${userId}`;
+  return `${SCHEMA_PREFIX}$ {assignmentId}_${userId}`;
+}
+
+function stripSqlComments(sql) {
+    return sql
+        // Convert literal "\n" into actual newline
+        .replace(/\\n/g, "\n")
+
+        // Remove -- single-line comments
+        .replace(/--[^\r\n]*(?:\r\n|\r|\n|$)/g, "")
+
+        // Remove /* block comments */
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+
+        .trim();
 }
 
 function validateQuery(sql) {
-  if (!sql || typeof sql !== "string" || sql.trim().length === 0) {
-    return { valid: false, reason: "Query cannot be empty." };
-  }
+    if (!sql || typeof sql !== "string" || sql.trim().length === 0) {
+        return {
+            valid: false,
+            reason: "Query cannot be empty."
+        };
+    }
 
-  if (!/^(SELECT|WITH)\b/i.test(sql.trim())) {
-    return { valid: false, reason: "Only SELECT queries are allowed." };
-  }
+    // Remove comments FIRST
+    const stripped = stripSqlComments(sql);
 
-  return { valid: true, reason: null };
+    if (!stripped) {
+        return {
+            valid: false,
+            reason: "Query cannot contain only comments."
+        };
+    }
+
+    // Always validate the stripped query
+    const upper = stripped.toUpperCase();
+
+    // Must start with SELECT
+    if (!upper.startsWith("SELECT")) {
+        return {
+            valid: false,
+            reason: "Only SELECT queries are allowed."
+        };
+    }
+
+    const forbidden = [
+        "DROP",
+        "DELETE",
+        "INSERT",
+        "UPDATE",
+        "ALTER",
+        "TRUNCATE",
+        "CREATE"
+    ];
+
+    const found = forbidden.find(keyword =>
+        new RegExp(`\\b${keyword}\\b`).test(upper)
+    );
+
+    if (found) {
+        return {
+            valid: false,
+            reason: `${found} statements are not allowed.`
+        };
+    }
+
+    return {
+        valid: true,
+        reason: null
+    };
 }
+
 
 // Build sandbox for a specific user + assignment
 async function buildSandbox(assignment, userId) {

@@ -6,91 +6,120 @@ import AiHint from "@/components/AiHint/AiHint";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-// import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 
 const AssignmentPage = ({ params }) => {
+    const [assignment, setAssignment] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    const [assignment, setAssignment] = useState();
     const user = useSelector((state) => state.auth.user);
     const router = useRouter();
 
     useEffect(() => {
-        const fetchAssDetaila = async () => {
-
+        const fetchAssignment = async () => {
             const { id } = await params;
 
-            if(!user || !user.userId) {
-                alert('You must login before opening an assignment!')
+            if (!user || !user.userId) {
                 router.push('/login');
                 return;
-            } 
+            }
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/assignments/${id}`,
-                {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${id}`, {
                     method: 'GET',
-                    credentials: 'include'
-                }
-            );
-            const response = await res.json();
-            setAssignment(response.data);
-            console.log('Hello');
-            console.log(response)
-        }
-        fetchAssDetaila();
-    }, [])
+                    credentials: 'include',
+                });
 
-    if (!assignment) {
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+                const response = await res.json();
+                setAssignment(response.data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAssignment();
+    }, []);
+
+    if (loading) {
         return (
-            <p>Loading...</p>
-        )
+            <div className={styles.loadingWrapper}>
+                <div className={styles.loadingPulse} />
+                <div className={styles.loadingPulse} style={{ width: '60%' }} />
+                <div className={styles.loadingPulse} style={{ width: '80%', height: '160px' }} />
+            </div>
+        );
     }
 
+    if (error) {
+        return (
+            <div className={styles.errorWrapper}>
+                <p>⚠ Could not load this assignment.</p>
+                <span>{error}</span>
+            </div>
+        );
+    }
+
+    if (!assignment) return null;
 
     return (
-        // <PanelGroup direction='horizontal' >
         <div className={styles.assignment}>
-            {/* <Panel defaultSize={40}> */}
-            <section className={styles.assignment_left}>
-                {/* question section - left side */}
-                <h3>{assignment.title}</h3>
-                <h4>Question:</h4>
-                <p>{assignment.question}</p>
-                {assignment.sampleTables.map(table => (
-                    <div key={table.tableName}>
-                        <p>Table Name: <b>{ table.tableName }</b></p>
-                        <table>
-                            <thead>
-                                <tr>
-                                    {table.columns.map(col => (
-                                        <th key={col.columnName}>{col.columnName}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {table.rows.map(row => (
-                                    <tr key={row.id}>
-                                        {Object.values(row).map((val, i) => (
-                                            <td key={i}>{val}</td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <AiHint id={ assignment._id } />
+            {/* Left panel — problem statement */}
+            <section className={styles.left}>
+                <div className={styles.leftInner}>
+                    <h2 className={styles.title}>{assignment.title}</h2>
+
+                    <div className={styles.section}>
+                        <h3 className={styles.sectionLabel}>Question</h3>
+                        <p className={styles.question}>{assignment.question}</p>
                     </div>
-                ))}
+
+                    {assignment.sampleTables?.length > 0 && (
+                        <div className={styles.section}>
+                            <h3 className={styles.sectionLabel}>Sample tables</h3>
+                            {assignment.sampleTables.map((table) => (
+                                <div key={table.tableName} className={styles.tableBlock}>
+                                    <p className={styles.tableName}>
+                                        <code>{table.tableName}</code>
+                                    </p>
+                                    <div className={styles.tableScroll}>
+                                        <table className={styles.sampleTable}>
+                                            <thead>
+                                                <tr>
+                                                    {table.columns.map((col) => (
+                                                        <th key={col.columnName}>{col.columnName}</th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {table.rows.map((row, ri) => (
+                                                    <tr key={ri}>
+                                                        {Object.values(row).map((val, vi) => (
+                                                            <td key={vi}>{String(val)}</td>
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* AiHint outside the table loop — one hint per assignment */}
+                    <AiHint id={assignment._id} />
+                </div>
             </section>
-            {/* </Panel> */}
-            {/* <PanelResizeHandle className={styles.resizeHandle} />
-            <Panel defaultSize={60}> */}
-            <section className={styles.assignment_right}>
-                {/* right part */}
-                <SqlEditor id={ assignment._id }/>
+
+            {/* Right panel — SQL editor */}
+            <section className={styles.right}>
+                <SqlEditor id={assignment._id} />
             </section>
-            {/* </Panel> */}
         </div>
-        // </PanelGroup>
-    )
-}
+    );
+};
 
 export default AssignmentPage;

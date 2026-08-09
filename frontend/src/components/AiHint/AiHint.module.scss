@@ -1,18 +1,75 @@
-
 .hint {
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
-    gap: 5px;
+    gap: 10px;
+}
 
-    button {
-        align-self: flex-start;
-        padding: 5px 10px;
-        border-radius: 5px;
-        
-        &:hover {
-            background-color: aliceblue;
-            scale: 110%;
-        }
+.hintBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    background: #fff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    align-self: flex-start;
+
+    &:hover:not(:disabled) {
+        background: #F9FAFB;
+        border-color: #D1D5DB;
     }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #E5E7EB;
+    border-top-color: #6B7280;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.hintBox {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.hintLabel {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #92400E;
+    margin: 0 0 6px;
+}
+
+.hintText {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #78350F;
+    margin: 0;
+}
+
+.error {
+    font-size: 13px;
+    color: #B91C1C;
+    margin: 0;
 }

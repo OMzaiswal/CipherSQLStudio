@@ -32,8 +32,6 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again in some time!",
 });
 
-
-
 app.use("/api", limiter);
 
 
@@ -44,13 +42,29 @@ app.use(mongoSanitize());
 // Data sanitization against XSS
 app.use(xss());
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_ORIGIN || "*",
-    credentials: true,
-    methods: ["GET", "POST"],
-  })
-);
+// app.use(
+//   cors({
+//     origin: process.env.CLIENT_ORIGIN || "*",
+//     credentials: true,
+//     methods: ["GET", "POST"],
+//   })
+// );
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://cipher-sql-studio-eight.vercel.app"
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 
 
 console.log('this is the env', process.env.NODE_ENV);
